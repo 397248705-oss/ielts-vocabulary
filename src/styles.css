@@ -124,3 +124,87 @@ button {
   background: #fffdf8;
   font-weight: 700;
 }
+
+.study-screen {
+  display: grid;
+  gap: 16px;
+}
+
+.session-count {
+  margin: 0;
+  color: #667085;
+}
+
+.word-card {
+  border: 1px solid #d6d0c4;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fffdf8;
+}
+
+.word-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.word-text {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.word-meta,
+.example-zh {
+  color: #667085;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #c6beb1;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.icon-button:disabled {
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+.word-details {
+  margin-top: 16px;
+}
+
+.meaning {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.secondary-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 16px;
+  border: 1px solid #23645b;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #23645b;
+  font-weight: 700;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.answer-grid button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: #e1f0ed;
+  color: #1f2933;
+  font-weight: 700;
+}

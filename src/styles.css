@@ -208,3 +208,34 @@ button {
   color: #1f2933;
   font-weight: 700;
 }
+
+.exercise-card {
+  border: 1px solid #d6d0c4;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fffdf8;
+}
+
+.exercise-card h1 {
+  margin: 0 0 8px;
+}
+
+.exercise-card h2 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+}
+
+.choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+.choice-list button {
+  min-height: 48px;
+  border: 1px solid #c6beb1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2933;
+  text-align: left;
+  padding: 10px 12px;
+}

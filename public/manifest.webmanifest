@@ -1,0 +1,16 @@
+{
+  "name": "雅思单词本",
+  "short_name": "雅思单词",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f1e8",
+  "theme_color": "#f6f1e8",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

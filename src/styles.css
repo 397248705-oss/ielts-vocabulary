@@ -239,3 +239,72 @@ button {
   text-align: left;
   padding: 10px 12px;
 }
+
+.word-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.word-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #d6d0c4;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffdf8;
+}
+
+.word-row p {
+  margin: 4px 0 0;
+  color: #667085;
+}
+
+.word-row span {
+  flex: 0 0 auto;
+  color: #23645b;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stats-grid div {
+  border: 1px solid #d6d0c4;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffdf8;
+}
+
+.stats-grid strong,
+.stats-grid span {
+  display: block;
+}
+
+.stats-grid strong {
+  font-size: 24px;
+}
+
+.import-button {
+  display: grid;
+  place-items: center;
+}
+
+.import-button input {
+  display: none;
+}
+
+.danger-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  border: 1px solid #b42318;
+  border-radius: 8px;
+  background: #fff8f6;
+  color: #b42318;
+  font-weight: 700;
+}

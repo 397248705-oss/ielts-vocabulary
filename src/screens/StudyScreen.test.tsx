@@ -35,6 +35,9 @@ describe('StudyScreen', () => {
     const [correctButton] = screen.getAllByRole('button', { name: '放弃；抛弃' });
     await userEvent.click(correctButton);
 
+    expect(screen.getByText('回答正确')).toBeInTheDocument();
+    expect(onFinish).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: '下一题' }));
     expect(onFinish).toHaveBeenCalled();
   });
 
@@ -49,11 +52,28 @@ describe('StudyScreen', () => {
       />
     );
 
-    expect(screen.getByText('输入英文单词')).toBeInTheDocument();
+    expect(screen.getByText('根据释义拼写单词')).toBeInTheDocument();
 
     await userEvent.type(screen.getByLabelText('英文拼写'), 'abandon');
     await userEvent.click(screen.getByRole('button', { name: '提交' }));
 
+    expect(screen.getByText('拼写正确')).toBeInTheDocument();
+    expect(onFinish).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: '下一题' }));
     expect(onFinish).toHaveBeenCalled();
+  });
+
+  it('shows the correct spelling before continuing after a mistake', async () => {
+    render(
+      <StudyScreen
+        words={fixtureWords.slice(0, 1)}
+        records={[makeRecord({ wordId: 'ielts-abandon', familiarity: 4, consecutiveCorrect: 2 })]}
+        onFinish={vi.fn()}
+      />
+    );
+
+    await userEvent.type(screen.getByLabelText('英文拼写'), 'abandun');
+    await userEvent.click(screen.getByRole('button', { name: '提交' }));
+    expect(screen.getByText('正确答案：abandon')).toBeInTheDocument();
   });
 });

@@ -3,10 +3,11 @@ import { BottomNav, type TabId } from './components/BottomNav';
 import { ieltsWords } from './data/ieltsWords';
 import { buildDailyPlan } from './domain/dailyPlan';
 import { toggleFavorite } from './domain/library';
-import { getActiveMistakes } from './domain/mistakes';
+import { getActiveMistakes, setMistakeMastered } from './domain/mistakes';
 import { calculateStats } from './domain/stats';
 import type { NewWordInput, StudyRecord, UserSettings, WordEntry } from './domain/types';
 import { HomeScreen } from './screens/HomeScreen';
+import { MistakesScreen } from './screens/MistakesScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { StatsScreen } from './screens/StatsScreen';
 import { StudyScreen } from './screens/StudyScreen';
@@ -97,6 +98,12 @@ export default function App() {
     };
     setCustomWords((current) => [customWord, ...current]);
     saveCustomWord(customWord).catch(() => setError('自定义单词保存失败'));
+  }
+
+  function handleMistakeMastered(wordId: string) {
+    const nextRecords = setMistakeMastered(records, wordId, true);
+    setRecords(nextRecords);
+    saveRecords(nextRecords).catch(() => setError('错题状态保存失败'));
   }
 
   function exportRecords() {
@@ -219,15 +226,12 @@ export default function App() {
           />
         )}
         {activeTab === 'mistakes' && (
-          <section className="screen">
-            <h1>错题本</h1>
-            <p>{mistakeRecords.length > 0 ? `当前有 ${mistakeRecords.length} 个错题` : '还没有错题'}</p>
-            {mistakeWords.length > 0 && (
-              <button className="primary-button" type="button" onClick={() => setStudyWords(mistakeWords)}>
-                复习错题
-              </button>
-            )}
-          </section>
+          <MistakesScreen
+            words={words}
+            records={records}
+            onStart={() => setStudyWords(mistakeWords)}
+            onMarkMastered={handleMistakeMastered}
+          />
         )}
         {activeTab === 'stats' && <StatsScreen records={records} today={today} />}
         {activeTab === 'settings' && (

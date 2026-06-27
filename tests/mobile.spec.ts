@@ -12,7 +12,17 @@ test('mobile learner can open and reveal a word card', async ({ page }) => {
 });
 
 test('manifest is available', async ({ page }) => {
-  const response = await page.goto('/manifest.webmanifest');
+  await page.goto('/');
 
-  expect(response?.ok()).toBe(true);
+  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href');
+  expect(manifestHref).not.toBeNull();
+
+  const response = await page.request.get(new URL(manifestHref!, page.url()).toString());
+
+  expect(response.ok()).toBe(true);
+
+  const manifest = await response.json();
+  expect(manifest.start_url).toBe('./');
+  expect(manifest.scope).toBe('./');
+  expect(manifest.icons[0].src).toBe('./icons/icon.svg');
 });

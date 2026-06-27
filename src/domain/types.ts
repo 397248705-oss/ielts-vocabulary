@@ -17,6 +17,16 @@ export interface WordEntry {
   createdAt?: string;
 }
 
+export interface NewWordInput {
+  word: string;
+  meaningZh: string;
+  pos: string;
+  phonetic: string;
+  exampleEn: string;
+  exampleZh: string;
+  topic: string;
+}
+
 export interface ReviewResult {
   wordId: string;
   kind: ExerciseKind;

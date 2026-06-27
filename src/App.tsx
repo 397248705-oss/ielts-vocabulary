@@ -2,19 +2,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { BottomNav, type TabId } from './components/BottomNav';
 import { ieltsWords } from './data/ieltsWords';
 import { buildDailyPlan } from './domain/dailyPlan';
+import { toggleFavorite } from './domain/library';
 import { getActiveMistakes } from './domain/mistakes';
 import { calculateStats } from './domain/stats';
-import type { StudyRecord, UserSettings, WordEntry } from './domain/types';
+import type { NewWordInput, StudyRecord, UserSettings, WordEntry } from './domain/types';
 import { HomeScreen } from './screens/HomeScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { StatsScreen } from './screens/StatsScreen';
 import { StudyScreen } from './screens/StudyScreen';
-import { VocabularyScreen } from './screens/VocabularyScreen';
+import { VocabularyScreen, type LibraryMode } from './screens/VocabularyScreen';
 import {
   clearLocalData,
   getCustomWords,
   getRecords,
   getSettings,
+  saveCustomWord,
   saveCustomWords,
   saveRecords,
   saveSettings
@@ -23,6 +25,7 @@ import { createBackup, parseBackup } from './storage/backup';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('today');
+  const [libraryMode, setLibraryMode] = useState<LibraryMode>('all');
   const [studyWords, setStudyWords] = useState<WordEntry[] | null>(null);
   const [records, setRecords] = useState<StudyRecord[]>([]);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
@@ -70,6 +73,30 @@ export default function App() {
     saveRecords(nextRecords).catch(() => setError('学习记录保存失败'));
     setStudyWords(null);
     setActiveTab('today');
+  }
+
+  function openLibrary(mode: LibraryMode) {
+    setLibraryMode(mode);
+    setActiveTab('vocabulary');
+  }
+
+  function handleToggleFavorite(wordId: string) {
+    const nextRecords = toggleFavorite(records, wordId, today);
+    setRecords(nextRecords);
+    saveRecords(nextRecords).catch(() => setError('收藏状态保存失败'));
+  }
+
+  function handleAddWord(input: NewWordInput) {
+    const uniqueId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${customWords.length}`;
+    const customWord: WordEntry = {
+      ...input,
+      id: `custom-${uniqueId}`,
+      difficulty: 'core',
+      source: 'custom',
+      createdAt: new Date().toISOString()
+    };
+    setCustomWords((current) => [customWord, ...current]);
+    saveCustomWord(customWord).catch(() => setError('自定义单词保存失败'));
   }
 
   function exportRecords() {
@@ -178,11 +205,19 @@ export default function App() {
             onReviewMistakes={() =>
               mistakeWords.length > 0 ? setStudyWords(mistakeWords) : setActiveTab('mistakes')
             }
-            onOpenFavorites={() => setActiveTab('vocabulary')}
-            onAddWord={() => setActiveTab('vocabulary')}
+            onOpenFavorites={() => openLibrary('favorites')}
+            onAddWord={() => openLibrary('add')}
           />
         )}
-        {activeTab === 'vocabulary' && <VocabularyScreen words={words} records={records} />}
+        {activeTab === 'vocabulary' && (
+          <VocabularyScreen
+            words={words}
+            records={records}
+            initialMode={libraryMode}
+            onToggleFavorite={handleToggleFavorite}
+            onAddWord={handleAddWord}
+          />
+        )}
         {activeTab === 'mistakes' && (
           <section className="screen">
             <h1>错题本</h1>
@@ -205,7 +240,13 @@ export default function App() {
           />
         )}
       </main>
-      <BottomNav active={activeTab} onChange={setActiveTab} />
+      <BottomNav
+        active={activeTab}
+        onChange={(tab) => {
+          if (tab === 'vocabulary') setLibraryMode('all');
+          setActiveTab(tab);
+        }}
+      />
     </div>
   );
 }

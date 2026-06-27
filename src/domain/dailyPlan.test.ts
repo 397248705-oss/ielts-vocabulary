@@ -26,4 +26,22 @@ describe('buildDailyPlan', () => {
     expect(plan.dueWordIds).toEqual([]);
     expect(plan.newWordIds).toEqual(['ielts-accurate']);
   });
+
+  it('keeps custom words first when they are supplied first', () => {
+    const customWord = {
+      ...fixtureWords[0],
+      id: 'custom-1',
+      word: 'resilient',
+      source: 'custom' as const,
+      topic: 'custom'
+    };
+    const plan = buildDailyPlan({
+      words: [customWord, ...fixtureWords],
+      records: [],
+      dailyNewWords: 2,
+      today: '2026-06-27'
+    });
+
+    expect(plan.newWordIds).toEqual(['custom-1', 'ielts-abandon']);
+  });
 });

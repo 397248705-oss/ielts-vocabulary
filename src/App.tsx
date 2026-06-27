@@ -1,33 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BottomNav, type TabId } from './components/BottomNav';
 import { ieltsWords } from './data/ieltsWords';
-import type { StudyRecord, UserSettings } from './domain/types';
+import { buildDailyPlan } from './domain/dailyPlan';
+import { getActiveMistakes } from './domain/mistakes';
+import type { StudyRecord, UserSettings, WordEntry } from './domain/types';
 import { HomeScreen } from './screens/HomeScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { StatsScreen } from './screens/StatsScreen';
 import { StudyScreen } from './screens/StudyScreen';
 import { VocabularyScreen } from './screens/VocabularyScreen';
-import { clearLocalData, getRecords, getSettings, saveRecords, saveSettings } from './storage/db';
+import {
+  clearLocalData,
+  getCustomWords,
+  getRecords,
+  getSettings,
+  saveCustomWords,
+  saveRecords,
+  saveSettings
+} from './storage/db';
 import { createBackup, parseBackup } from './storage/backup';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('today');
-  const [studying, setStudying] = useState(false);
+  const [studyWords, setStudyWords] = useState<WordEntry[] | null>(null);
   const [records, setRecords] = useState<StudyRecord[]>([]);
+  const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [settings, setSettings] = useState<UserSettings>({ dailyNewWords: 20 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getRecords(), getSettings()])
-      .then(([storedRecords, storedSettings]) => {
+    Promise.all([getRecords(), getSettings(), getCustomWords()])
+      .then(([storedRecords, storedSettings, storedCustomWords]) => {
         setRecords(storedRecords);
         setSettings(storedSettings);
+        setCustomWords(storedCustomWords);
         setError(null);
       })
       .catch(() => setError('本地学习记录读取失败'))
       .finally(() => setLoading(false));
   }, []);
+
+  const words = useMemo(() => [...customWords, ...ieltsWords], [customWords]);
+  const today = getToday();
+  const dailyPlan = buildDailyPlan({
+    words,
+    records,
+    dailyNewWords: settings.dailyNewWords,
+    today
+  });
+  const wordById = new Map(words.map((word) => [word.id, word]));
+  const dailyWords = [...dailyPlan.dueWordIds, ...dailyPlan.newWordIds]
+    .map((wordId) => wordById.get(wordId))
+    .filter((word): word is WordEntry => Boolean(word));
+  const mistakeRecords = getActiveMistakes(records);
+  const mistakeWords = mistakeRecords
+    .map((record) => wordById.get(record.wordId))
+    .filter((word): word is WordEntry => Boolean(word));
 
   function updateSettings(nextSettings: UserSettings) {
     setSettings(nextSettings);
@@ -37,12 +66,12 @@ export default function App() {
   function finishStudy(nextRecords: StudyRecord[]) {
     setRecords(nextRecords);
     saveRecords(nextRecords).catch(() => setError('学习记录保存失败'));
-    setStudying(false);
+    setStudyWords(null);
     setActiveTab('today');
   }
 
   function exportRecords() {
-    const backup = createBackup(records, settings);
+    const backup = createBackup(records, settings, customWords);
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -58,8 +87,10 @@ export default function App() {
       const backup = parseBackup(await file.text());
       await saveRecords(backup.records);
       await saveSettings(backup.settings);
+      await saveCustomWords(backup.customWords);
       setRecords(backup.records);
       setSettings(backup.settings);
+      setCustomWords(backup.customWords);
       setError(null);
     } catch {
       setError('导入文件格式不正确，当前记录未被覆盖');
@@ -70,6 +101,7 @@ export default function App() {
     if (window.confirm('确认清空本地学习记录？')) {
       await clearLocalData();
       setRecords([]);
+      setCustomWords([]);
     }
   }
 
@@ -107,6 +139,7 @@ export default function App() {
           onClick={() => {
             clearLocalData().then(() => {
               setRecords([]);
+              setCustomWords([]);
               setError(null);
             });
           }}
@@ -117,12 +150,12 @@ export default function App() {
     );
   }
 
-  if (studying) {
+  if (studyWords) {
     return (
       <div className="app-shell">
         <main className="app-main">
           <StudyScreen
-            words={ieltsWords.slice(0, settings.dailyNewWords)}
+            words={studyWords}
             records={records}
             onFinish={finishStudy}
           />
@@ -134,8 +167,19 @@ export default function App() {
   return (
     <div className="app-shell">
       <main className="app-main">
-        {activeTab === 'today' && <HomeScreen onStart={() => setStudying(true)} />}
-        {activeTab === 'vocabulary' && <VocabularyScreen words={ieltsWords} records={records} />}
+        {activeTab === 'today' && <HomeScreen onStart={() => setStudyWords(dailyWords)} />}
+        {activeTab === 'vocabulary' && <VocabularyScreen words={words} records={records} />}
+        {activeTab === 'mistakes' && (
+          <section className="screen">
+            <h1>错题本</h1>
+            <p>{mistakeRecords.length > 0 ? `当前有 ${mistakeRecords.length} 个错题` : '还没有错题'}</p>
+            {mistakeWords.length > 0 && (
+              <button className="primary-button" type="button" onClick={() => setStudyWords(mistakeWords)}>
+                复习错题
+              </button>
+            )}
+          </section>
+        )}
         {activeTab === 'stats' && <StatsScreen records={records} />}
         {activeTab === 'settings' && (
             <SettingsScreen
@@ -150,4 +194,11 @@ export default function App() {
       <BottomNav active={activeTab} onChange={setActiveTab} />
     </div>
   );
+}
+
+function getToday(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
 }

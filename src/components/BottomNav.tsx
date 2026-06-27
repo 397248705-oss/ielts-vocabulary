@@ -1,6 +1,6 @@
-import { BarChart3, BookOpen, CalendarDays, Settings } from 'lucide-react';
+import { BookOpen, ChartNoAxesColumnIncreasing, CircleX, House, Settings } from 'lucide-react';
 
-export type TabId = 'today' | 'vocabulary' | 'stats' | 'settings';
+export type TabId = 'today' | 'vocabulary' | 'mistakes' | 'stats' | 'settings';
 
 interface BottomNavProps {
   active: TabId;
@@ -8,9 +8,10 @@ interface BottomNavProps {
 }
 
 const tabs = [
-  { id: 'today' as const, label: '今日', icon: CalendarDays },
+  { id: 'today' as const, label: '今日', icon: House },
   { id: 'vocabulary' as const, label: '词库', icon: BookOpen },
-  { id: 'stats' as const, label: '统计', icon: BarChart3 },
+  { id: 'mistakes' as const, label: '错题', icon: CircleX },
+  { id: 'stats' as const, label: '统计', icon: ChartNoAxesColumnIncreasing },
   { id: 'settings' as const, label: '设置', icon: Settings }
 ];
 

@@ -10,7 +10,9 @@ const validWord: WordEntry = {
   phonetic: '/əˈbændən/',
   exampleEn: 'The plan was abandoned after costs rose sharply.',
   exampleZh: '成本大幅上升后，这个计划被放弃了。',
-  difficulty: 'core'
+  difficulty: 'core',
+  source: 'ielts',
+  topic: 'general'
 };
 
 describe('validateVocabulary', () => {

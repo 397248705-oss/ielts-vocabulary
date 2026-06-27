@@ -8,7 +8,9 @@ const requiredFields: Array<keyof WordEntry> = [
   'phonetic',
   'exampleEn',
   'exampleZh',
-  'difficulty'
+  'difficulty',
+  'source',
+  'topic'
 ];
 
 export function validateVocabulary(words: WordEntry[]): string[] {
@@ -30,6 +32,10 @@ export function validateVocabulary(words: WordEntry[]): string[] {
 
     if (!['core', 'medium', 'advanced'].includes(entry.difficulty)) {
       errors.push(`${entry.id} has invalid difficulty`);
+    }
+
+    if (!['ielts', 'custom'].includes(entry.source)) {
+      errors.push(`${entry.id} has invalid source`);
     }
   }
 

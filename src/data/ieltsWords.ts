@@ -1,6 +1,6 @@
 import type { Difficulty, WordEntry } from '../domain/types';
 
-type SeedWord = Omit<WordEntry, 'id'>;
+type SeedWord = Omit<WordEntry, 'id' | 'source' | 'topic'>;
 type TopicWord = [word: string, meaningZh: string, pos: string, difficulty: Difficulty];
 
 const seedWords: SeedWord[] = [
@@ -216,11 +216,18 @@ const generatedWords: WordEntry[] = Object.entries(topicWords).flatMap(([topic, 
     phonetic: phoneticFor(word),
     exampleEn: `The phrase "${word}" is useful in IELTS essays about ${topic}.`,
     exampleZh: `“${word}”这个表达适合用于关于${topicZh[topic]}的雅思作文。`,
-    difficulty
+    difficulty,
+    source: 'ielts',
+    topic
   }))
 );
 
 export const ieltsWords: WordEntry[] = [
-  ...seedWords.map((word) => ({ ...word, id: toId(word.word) })),
+  ...seedWords.map((word) => ({
+    ...word,
+    id: toId(word.word),
+    source: 'ielts' as const,
+    topic: 'general'
+  })),
   ...generatedWords
 ];

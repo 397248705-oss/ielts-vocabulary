@@ -26,6 +26,7 @@ export function createNewRecord(wordId: string, today: string): StudyRecord {
     consecutiveCorrect: 0,
     errorCount: 0,
     favorite: false,
+    mistakeMastered: false,
     history: []
   };
 }
@@ -53,6 +54,8 @@ export function applyReviewResult(
       nextReviewOn: addDays(today, 1),
       consecutiveCorrect: 0,
       errorCount: record.errorCount + 1,
+      mistakeMastered: false,
+      lastMistakeAt: answeredAt,
       latestResult: result,
       history: [...record.history, result]
     };

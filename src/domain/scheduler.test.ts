@@ -43,4 +43,18 @@ describe('applyReviewResult', () => {
     expect(next.nextReviewOn).toBe('2026-06-28');
     expect(next.intervalDays).toBe(2);
   });
+
+  it('reactivates a mastered mistake after another wrong answer', () => {
+    const next = applyReviewResult(
+      makeRecord({ mistakeMastered: true, errorCount: 2 }),
+      { kind: 'choice', rating: 'again', correct: false },
+      '2026-06-27'
+    );
+
+    expect(next).toMatchObject({
+      mistakeMastered: false,
+      errorCount: 3,
+      lastMistakeAt: '2026-06-27T12:00:00.000Z'
+    });
+  });
 });

@@ -9,7 +9,9 @@ export const fixtureWords: WordEntry[] = [
     phonetic: '/əˈbændən/',
     exampleEn: 'The plan was abandoned after costs rose sharply.',
     exampleZh: '成本大幅上升后，这个计划被放弃了。',
-    difficulty: 'core'
+    difficulty: 'core',
+    source: 'ielts',
+    topic: 'general'
   },
   {
     id: 'ielts-accurate',
@@ -19,7 +21,9 @@ export const fixtureWords: WordEntry[] = [
     phonetic: '/ˈækjərət/',
     exampleEn: 'Accurate data is essential for a reliable conclusion.',
     exampleZh: '准确的数据对于可靠结论很重要。',
-    difficulty: 'core'
+    difficulty: 'core',
+    source: 'ielts',
+    topic: 'general'
   },
   {
     id: 'ielts-allocate',
@@ -29,7 +33,9 @@ export const fixtureWords: WordEntry[] = [
     phonetic: '/ˈæləkeɪt/',
     exampleEn: 'The university allocated more funds to language research.',
     exampleZh: '这所大学给语言研究分配了更多资金。',
-    difficulty: 'medium'
+    difficulty: 'medium',
+    source: 'ielts',
+    topic: 'education'
   }
 ];
 
@@ -47,6 +53,7 @@ export function makeRecord(overrides: Partial<StudyRecord> = {}): StudyRecord {
     consecutiveCorrect: 0,
     errorCount: 0,
     favorite: false,
+    mistakeMastered: false,
     history: [],
     ...overrides
   };

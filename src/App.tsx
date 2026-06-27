@@ -3,6 +3,7 @@ import { BottomNav, type TabId } from './components/BottomNav';
 import { ieltsWords } from './data/ieltsWords';
 import { buildDailyPlan } from './domain/dailyPlan';
 import { getActiveMistakes } from './domain/mistakes';
+import { calculateStats } from './domain/stats';
 import type { StudyRecord, UserSettings, WordEntry } from './domain/types';
 import { HomeScreen } from './screens/HomeScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
@@ -57,6 +58,7 @@ export default function App() {
   const mistakeWords = mistakeRecords
     .map((record) => wordById.get(record.wordId))
     .filter((word): word is WordEntry => Boolean(word));
+  const stats = calculateStats(records, today);
 
   function updateSettings(nextSettings: UserSettings) {
     setSettings(nextSettings);
@@ -167,7 +169,19 @@ export default function App() {
   return (
     <div className="app-shell">
       <main className="app-main">
-        {activeTab === 'today' && <HomeScreen onStart={() => setStudyWords(dailyWords)} />}
+        {activeTab === 'today' && (
+          <HomeScreen
+            dueCount={dailyPlan.dueWordIds.length}
+            newCount={dailyPlan.newWordIds.length}
+            stats={stats}
+            onStart={() => setStudyWords(dailyWords)}
+            onReviewMistakes={() =>
+              mistakeWords.length > 0 ? setStudyWords(mistakeWords) : setActiveTab('mistakes')
+            }
+            onOpenFavorites={() => setActiveTab('vocabulary')}
+            onAddWord={() => setActiveTab('vocabulary')}
+          />
+        )}
         {activeTab === 'vocabulary' && <VocabularyScreen words={words} records={records} />}
         {activeTab === 'mistakes' && (
           <section className="screen">
@@ -180,7 +194,7 @@ export default function App() {
             )}
           </section>
         )}
-        {activeTab === 'stats' && <StatsScreen records={records} />}
+        {activeTab === 'stats' && <StatsScreen records={records} today={today} />}
         {activeTab === 'settings' && (
             <SettingsScreen
               settings={settings}

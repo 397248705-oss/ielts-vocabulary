@@ -23,7 +23,7 @@ describe('App', () => {
   it('loads local data and shows the approved five-tab navigation', async () => {
     render(<App />);
 
-    expect(await screen.findByText('今日任务')).toBeInTheDocument();
+    expect(await screen.findByText('今天也要向目标靠近')).toBeInTheDocument();
     expect(getSettings).toHaveBeenCalled();
     expect(getCustomWords).toHaveBeenCalled();
 

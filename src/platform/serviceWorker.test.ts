@@ -2,20 +2,23 @@ import { describe, expect, it, vi } from 'vitest';
 import { registerServiceWorker } from './serviceWorker';
 
 describe('registerServiceWorker', () => {
-  it('waits for load before registering from the supplied base', () => {
+  it.each([
+    ['/ielts-vocabulary/', '/ielts-vocabulary/sw.js'],
+    ['/', '/sw.js']
+  ])('waits for load before registering %s from the supplied base', (base, serviceWorkerUrl) => {
     const testWindow = new EventTarget() as Window;
     const register = vi.fn().mockResolvedValue(undefined);
     const testNavigator = {
       serviceWorker: { register }
     } as unknown as Navigator;
 
-    registerServiceWorker('/ielts-vocabulary/', testWindow, testNavigator);
+    registerServiceWorker(base, testWindow, testNavigator);
 
     expect(register).not.toHaveBeenCalled();
 
     testWindow.dispatchEvent(new Event('load'));
 
-    expect(register).toHaveBeenCalledWith('/ielts-vocabulary/sw.js');
+    expect(register).toHaveBeenCalledWith(serviceWorkerUrl);
   });
 
   it('does nothing when service workers are unavailable', () => {
@@ -39,6 +42,10 @@ describe('registerServiceWorker', () => {
     registerServiceWorker('/ielts-vocabulary/', testWindow, testNavigator);
     testWindow.dispatchEvent(new Event('load'));
 
-    expect(catchRegistrationFailure).toHaveBeenCalledOnce();
+    expect(catchRegistrationFailure).toHaveBeenCalledWith(expect.any(Function));
+
+    const [handleRegistrationFailure] = catchRegistrationFailure.mock.calls[0];
+
+    expect(handleRegistrationFailure(new Error('registration failed'))).toBeUndefined();
   });
 });

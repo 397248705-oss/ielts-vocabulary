@@ -51,8 +51,9 @@ export interface DailyPlan {
 
 export interface BackupFile {
   app: 'ielts-vocabulary-pwa';
-  version: 1;
+  version: 2;
   exportedAt: string;
   settings: UserSettings;
   records: StudyRecord[];
+  customWords: WordEntry[];
 }
